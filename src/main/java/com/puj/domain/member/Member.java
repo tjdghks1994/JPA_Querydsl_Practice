@@ -37,8 +37,6 @@ public class Member extends BaseTimeEntity {
 
     @Builder
     private Member(String email, String nickname, MemberRole role, String oAuthKey, MemberStatus status) {
-        // 검증 필요
-
         this.email = email;
         this.nickname = nickname;
         this.role = role;
