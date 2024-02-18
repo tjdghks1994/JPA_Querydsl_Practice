@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.ColumnDefault;
 
 import static jakarta.persistence.FetchType.*;
 import static jakarta.persistence.GenerationType.*;
@@ -26,7 +27,7 @@ public class AttachFile {
     @Column(name = "attach_path")
     private String attachPath;      // 첨부파일 저장 경로
 
-    @Column(name = "save_filename")
+    @Column(name = "attach_filename")
     private String saveFilename;    // 첨부파일 저장 명
 
     @Column(name = "origin_filename")
@@ -36,18 +37,24 @@ public class AttachFile {
     private String attachExtension; // 첨부파일 확장자
 
     @Column(name = "image_yn")
-    private char imageYN;       // 이미지 파일 여부
+    private String imageYN;       // 이미지 파일 여부
 
     @Column(name = "delete_yn")
-    private char deleteYN;      // 파일 삭제 여부
+    @ColumnDefault(value = "N")
+    private String deleteYN;    // 삭제 여부
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "board_id")
     private Board board;        // 게시글
 
+    @PrePersist
+    protected void fieldDefaultValueSetting() {
+        this.deleteYN = this.deleteYN == null ? "N" : this.deleteYN;
+    }
+
     @Builder
     public AttachFile(String attachPath, String saveFilename, String originFilename,
-                 String attachExtension, char imageYN, char deleteYN, Board board) {
+                 String attachExtension, String imageYN, String deleteYN, Board board) {
         this.attachPath = attachPath;
         this.saveFilename = saveFilename;
         this.originFilename = originFilename;
