@@ -3,10 +3,8 @@ package com.puj.domain.board;
 import com.puj.domain.base.BaseTimeEntity;
 import com.puj.domain.member.Member;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +34,7 @@ public class Board extends BaseTimeEntity {
     private String boardContent;    // 내용
 
     @Column(name = "view_cnt")
+    @ColumnDefault(value = "0")
     private int viewCnt;            // 조회수
 
     @Column(name = "board_type")
@@ -43,7 +42,8 @@ public class Board extends BaseTimeEntity {
     private BoardType boardType;    // 게시판 타입
 
     @Column(name = "delete_yn")
-    private char deleteYN;          // 삭제 여부
+    @ColumnDefault(value = "N")
+    private String deleteYN;    // 삭제 여부
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "member_id")
@@ -56,9 +56,15 @@ public class Board extends BaseTimeEntity {
     @OneToMany(mappedBy = "parentBoard")
     private List<Board> childrenBoard = new ArrayList<>();  // 답글
 
+    @PrePersist
+    protected void fieldDefaultValueSetting() {
+        this.viewCnt = this.viewCnt == 0 ? 0 : this.viewCnt;
+        this.deleteYN = this.deleteYN == null ? "N" : this.deleteYN;
+    }
+
     @Builder
     public Board(String boardTitle, String boardContent, int viewCnt, BoardType boardType,
-                 char deleteYN, Member member, Board parentBoard) {
+                 String deleteYN, Member member, Board parentBoard) {
         this.boardTitle = boardTitle;
         this.boardContent = boardContent;
         this.viewCnt = viewCnt;
