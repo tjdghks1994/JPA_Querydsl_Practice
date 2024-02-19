@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,8 @@ public class Comment extends BaseTimeEntity {
     private String content;         // 댓글 내용
 
     @Column(name = "delete_yn")
-    private char deleteYN;          // 댓글 삭제 여부
+    @ColumnDefault(value = "N")
+    private String deleteYN;    // 삭제 여부
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "board_id")
@@ -49,8 +51,13 @@ public class Comment extends BaseTimeEntity {
     @OneToMany(mappedBy = "parentComment")
     private List<Comment> childrenComments = new ArrayList<>(); // 대댓글
 
+    @PrePersist
+    protected void fieldDefaultValueSetting() {
+        this.deleteYN = this.deleteYN == null ? "N" : this.deleteYN;
+    }
+
     @Builder
-    public Comment(String content, char deleteYN, Board board, Member member, Comment parentComment) {
+    public Comment(String content, String deleteYN, Board board, Member member, Comment parentComment) {
         this.content = content;
         this.deleteYN = deleteYN;
         this.board = board;
