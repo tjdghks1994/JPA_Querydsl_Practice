@@ -73,4 +73,9 @@ public class Board extends BaseTimeEntity {
         this.member = member;
         this.parentBoard = parentBoard;
     }
+    // 게시글 제목, 내용 변경
+    public void changeBoardInfo(String boardTitle, String boardContent) {
+        this.boardTitle = boardTitle;
+        this.boardContent = boardContent;
+    }
 }
