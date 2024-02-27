@@ -2,7 +2,7 @@ package com.puj.domain.board.service;
 
 import com.puj.domain.board.BoardType;
 import com.puj.domain.board.exception.InvalidBoardException;
-import com.puj.domain.board.repository.BoardRepository;
+import com.puj.domain.board.service.dto.CreateAttachReq;
 import com.puj.domain.board.service.dto.CreateBoardReq;
 import com.puj.domain.board.service.dto.SearchBoardResp;
 import com.puj.domain.member.Member;
@@ -11,17 +11,16 @@ import com.puj.domain.member.MemberStatus;
 import com.puj.domain.member.exception.InvalidMemberException;
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @SpringBootTest
@@ -44,17 +43,30 @@ class BoardServiceTest {
                 .status(MemberStatus.ENABLE)
                 .oAuthKey(null)
                 .build();
-        CreateBoardReq req = CreateBoardReq.builder()
+        CreateBoardReq boardReq = CreateBoardReq.builder()
                 .boardTitle("게시글 작성")
                 .boardContent("게시글 내용~~")
                 .boardType(BoardType.NORMAL)
                 .writer("test@gmail.com")
                 .build();
+        Optional<CreateAttachReq> attachReq = Optional.ofNullable(CreateAttachReq.builder()
+                .originFilename("텍스트파일")
+                .attachExtension(".txt")
+                .build());
+        CreateBoardReq boardReq2 = CreateBoardReq.builder()
+                .boardTitle("게시글 작성2")
+                .boardContent("게시글 내용2~~")
+                .boardType(BoardType.NORMAL)
+                .writer("test@gmail.com")
+                .build();
+        Optional<CreateAttachReq> attachReq2 = Optional.ofNullable(null);
 
         em.persist(member);
-        Long boardId = boardService.createBoard(req);
+        Long boardId = boardService.createBoard(boardReq, attachReq);
+        Long boardId2 = boardService.createBoard(boardReq2, attachReq2);
 
         assertThat(boardId).isGreaterThan(0L);
+        assertThat(boardId2).isGreaterThan(0L);
     }
 
     @Test
@@ -68,15 +80,19 @@ class BoardServiceTest {
                 .oAuthKey(null)
                 .build();
 
-        CreateBoardReq req = CreateBoardReq.builder()
+        CreateBoardReq boardReq = CreateBoardReq.builder()
                 .boardTitle("게시글 작성")
                 .boardContent("게시글 내용~~")
                 .boardType(BoardType.NORMAL)
                 .writer("test@gmail.com")
                 .build();
+        Optional<CreateAttachReq> attachReq = Optional.ofNullable(CreateAttachReq.builder()
+                .originFilename("텍스트파일")
+                .attachExtension(".txt")
+                .build());
 
         em.persist(member);
-        assertThatThrownBy(() -> boardService.createBoard(req))
+        assertThatThrownBy(() -> boardService.createBoard(boardReq, attachReq))
                 .isInstanceOf(InvalidMemberException.class);
     }
 
@@ -92,23 +108,28 @@ class BoardServiceTest {
                 .status(MemberStatus.ENABLE)
                 .oAuthKey(null)
                 .build();
-        CreateBoardReq req = CreateBoardReq.builder()
+        CreateBoardReq boardReq = CreateBoardReq.builder()
                 .boardTitle("게시글 작성")
                 .boardContent("게시글 내용~~")
                 .boardType(BoardType.NORMAL)
                 .writer("test@gmail.com")
                 .build();
+        Optional<CreateAttachReq> attachReq = Optional.ofNullable(CreateAttachReq.builder()
+                .originFilename("텍스트파일")
+                .attachExtension(".txt")
+                .build());
+
         em.persist(member);
-        Long boardId = boardService.createBoard(req);
+        Long boardId = boardService.createBoard(boardReq, attachReq);
 
         // when
         SearchBoardResp findBoardInfo = boardService.searchBoard(boardId);
 
         // then
         assertThat(findBoardInfo.getBoardId()).isEqualTo(boardId);
-        assertThat(findBoardInfo.getBoardTitle()).isEqualTo(req.getBoardTitle());
+        assertThat(findBoardInfo.getBoardTitle()).isEqualTo(boardReq.getBoardTitle());
         assertThat(findBoardInfo.getWriter()).isEqualTo(member.getNickname());
-        assertThat(findBoardInfo.getAttachList().size()).isEqualTo(0);
+        assertThat(findBoardInfo.getAttachList().size()).isEqualTo(1);
         assertThat(findBoardInfo.getCommentList().size()).isEqualTo(0);
     }
 
