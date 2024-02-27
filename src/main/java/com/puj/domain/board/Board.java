@@ -63,7 +63,7 @@ public class Board extends BaseTimeEntity {
     }
 
     @Builder
-    public Board(String boardTitle, String boardContent, int viewCnt, BoardType boardType,
+    private Board(String boardTitle, String boardContent, int viewCnt, BoardType boardType,
                  String deleteYN, Member member, Board parentBoard) {
         this.boardTitle = boardTitle;
         this.boardContent = boardContent;

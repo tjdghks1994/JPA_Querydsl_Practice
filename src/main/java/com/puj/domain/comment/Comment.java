@@ -57,7 +57,7 @@ public class Comment extends BaseTimeEntity {
     }
 
     @Builder
-    public Comment(String content, String deleteYN, Board board, Member member, Comment parentComment) {
+    private Comment(String content, String deleteYN, Board board, Member member, Comment parentComment) {
         this.content = content;
         this.deleteYN = deleteYN;
         this.board = board;

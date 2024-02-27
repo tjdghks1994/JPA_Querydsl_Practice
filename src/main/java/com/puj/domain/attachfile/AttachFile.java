@@ -53,7 +53,7 @@ public class AttachFile {
     }
 
     @Builder
-    public AttachFile(String attachPath, String saveFilename, String originFilename,
+    private AttachFile(String attachPath, String saveFilename, String originFilename,
                  String attachExtension, String imageYN, String deleteYN, Board board) {
         this.attachPath = attachPath;
         this.saveFilename = saveFilename;
