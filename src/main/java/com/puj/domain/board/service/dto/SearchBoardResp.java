@@ -1,6 +1,7 @@
 package com.puj.domain.board.service.dto;
 
 import com.puj.domain.attachfile.repository.dto.SearchAttachResp;
+import com.puj.domain.board.Board;
 import com.puj.domain.comment.repository.dto.SearchCommentResp;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,5 +32,20 @@ public class SearchBoardResp {
         this.writer = writer;
         this.attachList = attachList;
         this.commentList = commentList;
+    }
+
+    // Entity 와 연관관계가 있는 DTO 를 통해, 게시글 응답 DTO 변환
+    public static SearchBoardResp toDTO(Board boardEntity,
+                                        List<SearchAttachResp> attachList,
+                                        List<SearchCommentResp> commentList) {
+        return SearchBoardResp.builder()
+                .boardId(boardEntity.getId())
+                .boardTitle(boardEntity.getBoardTitle())
+                .boardContent(boardEntity.getBoardContent())
+                .viewCnt(boardEntity.getViewCnt())
+                .writer(boardEntity.getMember().getNickname())
+                .attachList(attachList)
+                .commentList(commentList)
+                .build();
     }
 }

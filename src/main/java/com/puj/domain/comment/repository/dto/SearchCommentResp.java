@@ -1,5 +1,6 @@
 package com.puj.domain.comment.repository.dto;
 
+import com.puj.domain.comment.Comment;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -18,5 +19,15 @@ public class SearchCommentResp {
         this.commentContent = commentContent;
         this.createdAt = createdAt;
         this.parentCommentId = parentCommentId;
+    }
+
+    // Entity 를 DTO 로 변환
+    public static SearchCommentResp toDTO(Comment commentEntity) {
+        return SearchCommentResp.builder()
+                .commentId(commentEntity.getId())
+                .commentContent(commentEntity.getContent())
+                .createdAt(commentEntity.getCreatedAt())
+                .parentCommentId(commentEntity.getParentComment().getId())
+                .build();
     }
 }

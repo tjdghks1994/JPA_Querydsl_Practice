@@ -1,5 +1,6 @@
 package com.puj.domain.attachfile.repository.dto;
 
+import com.puj.domain.attachfile.AttachFile;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -16,5 +17,15 @@ public class SearchAttachResp {
         this.originFilename = originFilename;
         this.attachExtension = attachExtension;
         this.imageYN = imageYN;
+    }
+
+    // Entity 를 DTO 로 변환
+    public static SearchAttachResp toDTO(AttachFile attachFile) {
+        return SearchAttachResp.builder()
+                .attachId(attachFile.getId())
+                .originFilename(attachFile.getOriginFilename())
+                .attachExtension(attachFile.getAttachExtension())
+                .imageYN(attachFile.getImageYN())
+                .build();
     }
 }

@@ -1,6 +1,8 @@
 package com.puj.domain.board.service.dto;
 
+import com.puj.domain.board.Board;
 import com.puj.domain.board.BoardType;
+import com.puj.domain.member.Member;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -18,5 +20,14 @@ public class CreateBoardReq {
         this.boardTitle = boardTitle;
         this.boardContent = boardContent;
         this.boardType = boardType;
+    }
+    // DTO 클래스를 Entity 로 변환
+    public static Board conversionBoardEntity(CreateBoardReq createBoardReq, Member member) {
+        return Board.builder()
+                .boardTitle(createBoardReq.getBoardTitle())
+                .boardContent(createBoardReq.getBoardContent())
+                .boardType(createBoardReq.getBoardType())
+                .member(member)
+                .build();
     }
 }
