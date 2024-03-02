@@ -37,33 +37,22 @@ public class BoardService {
     private final CommentRepository commentRepository;
 
     // 게시글 생성
-    public Long createBoard(CreateBoardReq boardReq, Optional<CreateAttachReq> attachReq) {   // CreateBoardReq DTO 클래스의 필드 수정 필요 - 저장할 첨부파일 목록 정보 필드 추가 필요
+    public Long createBoard(CreateBoardReq boardReq, List<CreateAttachReq> attachReq) {
         // 작성자 조회
         Member findMember = memberRepository.findByEmail(boardReq.getWriter())
                 .orElseThrow(() -> new InvalidMemberException("존재하지 않는 사용자 입니다."));
         // 게시글 저장을 위한 Entity 생성
-        Board boardEntity = Board.builder()
-                .boardTitle(boardReq.getBoardTitle())
-                .boardContent(boardReq.getBoardContent())
-                .boardType(boardReq.getBoardType())
-                .member(findMember)
-                .build();
+        Board boardEntity = CreateBoardReq.conversionBoardEntity(boardReq, findMember);
         // 게시글 저장
         Board saveBoard = boardRepository.save(boardEntity);
-
         // 첨부파일 저장을 위한 Entity 생성
-        attachReq.ifPresent(attach -> {
-            AttachFile attachEntity = AttachFile.builder()
-                    .attachPath("/Users/parksunghwan/uploadFile/")  // properties 활용하도록 리팩토링
-                    .saveFilename(UUID.randomUUID().toString())
-                    .originFilename(attach.getOriginFilename())
-                    .attachExtension(attach.getAttachExtension())
-                    .imageYN(checkImageType(attach.getAttachExtension()))
-                    .board(boardEntity)
-                    .build();
-            // 첨부파일 저장
-            attachFileRepository.save(attachEntity);
-        });
+        if (attachReq != null) {
+            attachReq.forEach(req -> {
+                AttachFile attachEntity = CreateAttachReq.conversionAttachEntity(req, saveBoard);
+                // 첨부파일 저장
+                attachFileRepository.save(attachEntity);
+            });
+        }
 
         return saveBoard.getId();
     }
@@ -77,43 +66,22 @@ public class BoardService {
         // 해당 게시글의 첨부파일 목록 조회
         List<SearchAttachResp> attachFileList = attachFileRepository.findAttachFileByBoardId(boardId)
                 .stream()
-                .map((a) -> SearchAttachResp.builder()
-                                            .attachId(a.getId())
-                                            .originFilename(a.getOriginFilename())
-                                            .attachExtension(a.getAttachExtension())
-                                            .imageYN(a.getImageYN())
-                                            .build())
+                .map((attachFile) -> SearchAttachResp.toDTO(attachFile))
                 .collect(Collectors.toList());
 
         // 해당 게시글의 댓글 목록 조회
         List<SearchCommentResp> commentList = commentRepository.findCommentByBoardId(boardId)
                 .stream()
-                .map((c) -> SearchCommentResp.builder()
-                                            .commentId(c.getId())
-                                            .commentContent(c.getContent())
-                                            .createdAt(c.getCreatedAt())
-                                            .parentCommentId(c.getParentComment().getId())
-                                            .build()
-                ).collect(Collectors.toList());
+                .map((comment) -> SearchCommentResp.toDTO(comment))
+                .collect(Collectors.toList());
 
-        SearchBoardResp resp = SearchBoardResp.builder()
-                .boardId(findBoard.getId())
-                .boardTitle(findBoard.getBoardTitle())
-                .boardContent(findBoard.getBoardContent())
-                .viewCnt(findBoard.getViewCnt())
-                .writer(findBoard.getMember().getNickname())
-                .attachList(attachFileList)
-                .commentList(commentList)
-                .build();
+        SearchBoardResp resp = SearchBoardResp.toDTO(findBoard, attachFileList, commentList);
 
         return resp;
     }
-    // 이미지 파일 체크
-    private String checkImageType(String attachExtension) {
-        String[] imgExtension = {".jpeg", "jpg", ".gif", ".tiff", ".png", ".bmp", ".svg"};
 
-        boolean imageResult = Arrays.stream(imgExtension).anyMatch(ext -> ext.equals(attachExtension));
+    // 게시글 수정
 
-        return imageResult ? "Y" : "N";
-    }
+    // 게시글 삭제
+
 }
