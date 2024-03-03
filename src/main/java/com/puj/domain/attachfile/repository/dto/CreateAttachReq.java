@@ -1,4 +1,4 @@
-package com.puj.domain.board.service.dto;
+package com.puj.domain.attachfile.repository.dto;
 
 import com.puj.domain.attachfile.AttachFile;
 import com.puj.domain.board.Board;
