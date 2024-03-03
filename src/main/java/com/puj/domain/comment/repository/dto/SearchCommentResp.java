@@ -14,7 +14,7 @@ public class SearchCommentResp {
     private final Long parentCommentId;
 
     @Builder
-    public SearchCommentResp(Long commentId, String commentContent, LocalDateTime createdAt, Long parentCommentId) {
+    private SearchCommentResp(Long commentId, String commentContent, LocalDateTime createdAt, Long parentCommentId) {
         this.commentId = commentId;
         this.commentContent = commentContent;
         this.createdAt = createdAt;

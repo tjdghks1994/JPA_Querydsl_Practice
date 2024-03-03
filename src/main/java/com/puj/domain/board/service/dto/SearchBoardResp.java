@@ -21,7 +21,7 @@ public class SearchBoardResp {
     private final List<SearchCommentResp> commentList;  // 댓글 목록
 
     @Builder
-    public SearchBoardResp(Long boardId, String boardTitle, String boardContent,
+    private SearchBoardResp(Long boardId, String boardTitle, String boardContent,
                            int viewCnt, LocalDateTime createdAt, String writer,
                            List<SearchAttachResp> attachList, List<SearchCommentResp> commentList) {
         this.boardId = boardId;

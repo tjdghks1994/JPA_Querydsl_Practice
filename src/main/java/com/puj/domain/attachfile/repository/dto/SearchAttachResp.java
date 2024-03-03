@@ -12,7 +12,7 @@ public class SearchAttachResp {
     private final String imageYN;           // 이미지 파일 여부
 
     @Builder
-    public SearchAttachResp(Long attachId, String originFilename, String attachExtension, String imageYN) {
+    private SearchAttachResp(Long attachId, String originFilename, String attachExtension, String imageYN) {
         this.attachId = attachId;
         this.originFilename = originFilename;
         this.attachExtension = attachExtension;

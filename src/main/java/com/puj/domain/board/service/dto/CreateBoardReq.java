@@ -14,7 +14,7 @@ public class CreateBoardReq {
     private final BoardType boardType;  // 게시글타입
 
     @Builder
-    public CreateBoardReq(String boardTitle, String boardContent,
+    private CreateBoardReq(String boardTitle, String boardContent,
                           BoardType boardType, String writer) {
         this.writer = writer;
         this.boardTitle = boardTitle;
