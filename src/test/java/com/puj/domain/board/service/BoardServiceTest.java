@@ -2,7 +2,7 @@ package com.puj.domain.board.service;
 
 import com.puj.domain.board.BoardType;
 import com.puj.domain.board.exception.InvalidBoardException;
-import com.puj.domain.board.service.dto.CreateAttachReq;
+import com.puj.domain.attachfile.repository.dto.CreateAttachReq;
 import com.puj.domain.board.service.dto.CreateBoardReq;
 import com.puj.domain.board.service.dto.SearchBoardResp;
 import com.puj.domain.member.Member;
@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
@@ -144,7 +143,7 @@ class BoardServiceTest {
         Long boardId = boardService.createBoard(boardReq, attachReqs);
 
         // when
-        SearchBoardResp findBoardInfo = boardService.searchBoard(boardId);
+        SearchBoardResp findBoardInfo = boardService.readBoard(boardId);
 
         // then
         assertThat(findBoardInfo.getBoardId()).isEqualTo(boardId);
@@ -159,7 +158,7 @@ class BoardServiceTest {
     void searchBoardFailTest() {
         Long boardId = 0L;
 
-        assertThatThrownBy(() -> boardService.searchBoard(boardId))
+        assertThatThrownBy(() -> boardService.readBoard(boardId))
                 .isInstanceOf(InvalidBoardException.class);
     }
 }
