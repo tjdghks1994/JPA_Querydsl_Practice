@@ -1,9 +1,11 @@
 package com.puj.domain.board.service;
 
+import com.puj.domain.attachfile.AttachFile;
 import com.puj.domain.board.BoardType;
 import com.puj.domain.board.exception.InvalidBoardException;
 import com.puj.domain.attachfile.repository.dto.CreateAttachReq;
 import com.puj.domain.board.service.dto.CreateBoardReq;
+import com.puj.domain.board.service.dto.ModifyBoardReq;
 import com.puj.domain.board.service.dto.SearchBoardResp;
 import com.puj.domain.member.Member;
 import com.puj.domain.member.MemberRole;
@@ -11,6 +13,7 @@ import com.puj.domain.member.MemberStatus;
 import com.puj.domain.member.exception.InvalidMemberException;
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +37,17 @@ class BoardServiceTest {
     @Autowired
     EntityManager em;
 
-    @Test
-    void createTest() {
-        Member member = Member.builder()
+    private Member member1;
+    private Member member2;
+    private CreateBoardReq boardReq1;
+    private CreateBoardReq boardReq2;
+    private CreateAttachReq attachReq1;
+    private CreateAttachReq attachReq2;
+    private CreateAttachReq attachReq3;
+
+    @BeforeEach
+    void initEntity() {
+        member1 = Member.builder()
                 .email("test@gmail.com")
                 .pwd(UUID.randomUUID().toString())
                 .nickname("하디")
@@ -44,35 +55,46 @@ class BoardServiceTest {
                 .status(MemberStatus.ENABLE)
                 .oAuthKey(null)
                 .build();
-        CreateBoardReq boardReq = CreateBoardReq.builder()
+        member2 = Member.builder()
+                .email("test22@gmail.com")
+                .pwd(UUID.randomUUID().toString())
+                .nickname("하디")
+                .role(MemberRole.NORMAL)
+                .status(MemberStatus.ENABLE)
+                .oAuthKey(null)
+                .build();
+        boardReq1 = CreateBoardReq.builder()
                 .boardTitle("게시글 작성")
                 .boardContent("게시글 내용~~")
                 .boardType(BoardType.NORMAL)
                 .writer("test@gmail.com")
                 .build();
-        CreateAttachReq attachReq = CreateAttachReq.builder()
-                .originFilename("텍스트파일")
-                .attachExtension(".txt")
-                .build();
-        CreateAttachReq attachReq2 = CreateAttachReq.builder()
-                .originFilename("텍스트파일22")
-                .attachExtension(".txt")
-                .build();
-        CreateAttachReq attachReq3 = CreateAttachReq.builder()
-                .originFilename("텍스트파일33333")
-                .attachExtension(".txt")
-                .build();
-        List<CreateAttachReq> attachReqs = Arrays.asList(attachReq, attachReq2, attachReq3);
-
-        CreateBoardReq boardReq2 = CreateBoardReq.builder()
+        boardReq2 = CreateBoardReq.builder()
                 .boardTitle("게시글 작성2")
                 .boardContent("게시글 내용2~~")
                 .boardType(BoardType.NORMAL)
                 .writer("test@gmail.com")
                 .build();
+        attachReq1 = CreateAttachReq.builder()
+                .originFilename("텍스트파일")
+                .attachExtension(".txt")
+                .build();
+        attachReq2 = CreateAttachReq.builder()
+                .originFilename("텍스트파일22")
+                .attachExtension(".txt")
+                .build();
+        attachReq3 = CreateAttachReq.builder()
+                .originFilename("텍스트파일33333")
+                .attachExtension(".txt")
+                .build();
+    }
 
-        em.persist(member);
-        Long boardId = boardService.createBoard(boardReq, attachReqs);
+    @Test
+    void createTest() {
+        List<CreateAttachReq> attachReqs = Arrays.asList(attachReq1, attachReq2, attachReq3);
+
+        em.persist(member1);
+        Long boardId = boardService.createBoard(boardReq1, attachReqs);
         Long boardId2 = boardService.createBoard(boardReq2, null);
 
         assertThat(boardId).isGreaterThan(0L);
@@ -81,84 +103,74 @@ class BoardServiceTest {
 
     @Test
     void createFailTest() {
-        Member member = Member.builder()
-                .email("test22@gmail.com")
-                .pwd(UUID.randomUUID().toString())
-                .nickname("하디")
-                .role(MemberRole.NORMAL)
-                .status(MemberStatus.ENABLE)
-                .oAuthKey(null)
-                .build();
+        List<CreateAttachReq> attachReqs = Arrays.asList(attachReq1);
 
-        CreateBoardReq boardReq = CreateBoardReq.builder()
-                .boardTitle("게시글 작성")
-                .boardContent("게시글 내용~~")
-                .boardType(BoardType.NORMAL)
-                .writer("test@gmail.com")
-                .build();
-        CreateAttachReq attachReq = CreateAttachReq.builder()
-                .originFilename("텍스트파일")
-                .attachExtension(".txt")
-                .build();
-        List<CreateAttachReq> attachReqs = Arrays.asList(attachReq);
-
-        em.persist(member);
-        assertThatThrownBy(() -> boardService.createBoard(boardReq, attachReqs))
+        em.persist(member2);
+        assertThatThrownBy(() -> boardService.createBoard(boardReq1, attachReqs))
                 .isInstanceOf(InvalidMemberException.class);
     }
 
     @Test
     @DisplayName("게시글 조회 성공 테스트")
-    void searchBoardTest() {
+    void readBoardTest() {
         // given
-        Member member = Member.builder()
-                .email("test@gmail.com")
-                .pwd(UUID.randomUUID().toString())
-                .nickname("하디")
-                .role(MemberRole.NORMAL)
-                .status(MemberStatus.ENABLE)
-                .oAuthKey(null)
-                .build();
-        CreateBoardReq boardReq = CreateBoardReq.builder()
-                .boardTitle("게시글 작성")
-                .boardContent("게시글 내용~~")
-                .boardType(BoardType.NORMAL)
-                .writer("test@gmail.com")
-                .build();
-        CreateAttachReq attachReq = CreateAttachReq.builder()
-                .originFilename("텍스트파일")
-                .attachExtension(".txt")
-                .build();
-        CreateAttachReq attachReq2 = CreateAttachReq.builder()
-                .originFilename("텍스트파일22")
-                .attachExtension(".txt")
-                .build();
-        CreateAttachReq attachReq3 = CreateAttachReq.builder()
-                .originFilename("텍스트파일33333")
-                .attachExtension(".txt")
-                .build();
-        List<CreateAttachReq> attachReqs = Arrays.asList(attachReq, attachReq2, attachReq3);
+        List<CreateAttachReq> attachReqs = Arrays.asList(attachReq1, attachReq2, attachReq3);
 
-        em.persist(member);
-        Long boardId = boardService.createBoard(boardReq, attachReqs);
+        em.persist(member1);
+        Long boardId = boardService.createBoard(boardReq1, attachReqs);
 
         // when
         SearchBoardResp findBoardInfo = boardService.readBoard(boardId);
 
         // then
         assertThat(findBoardInfo.getBoardId()).isEqualTo(boardId);
-        assertThat(findBoardInfo.getBoardTitle()).isEqualTo(boardReq.getBoardTitle());
-        assertThat(findBoardInfo.getWriter()).isEqualTo(member.getNickname());
+        assertThat(findBoardInfo.getBoardTitle()).isEqualTo(boardReq1.getBoardTitle());
+        assertThat(findBoardInfo.getWriter()).isEqualTo(member1.getNickname());
         assertThat(findBoardInfo.getAttachList().size()).isEqualTo(3);
         assertThat(findBoardInfo.getCommentList().size()).isEqualTo(0);
     }
 
     @Test
     @DisplayName("존재하지 않는 게시글을 조회하는 실패 테스트")
-    void searchBoardFailTest() {
+    void readBoardFailTest() {
         Long boardId = 0L;
 
         assertThatThrownBy(() -> boardService.readBoard(boardId))
                 .isInstanceOf(InvalidBoardException.class);
+    }
+
+    @Test
+    @DisplayName("게시글 수정 성공 테스트")
+    void updateBoardTest() {
+        List<CreateAttachReq> attachReqs = Arrays.asList(attachReq1, attachReq2, attachReq3);
+        em.persist(member1);
+        Long boardId = boardService.createBoard(boardReq1, attachReqs);
+        List<AttachFile> attachFiles = em.createQuery("select a from AttachFile a where a.board.id = :boardId", AttachFile.class)
+                .setParameter("boardId", boardId)
+                .getResultList();
+
+        ModifyBoardReq modifyBoardReq = ModifyBoardReq.builder()
+                .boardId(boardId)
+                .boardTitle("수정!")
+                .boardContent("내용도 수정~~!")
+                .memberEmail(member1.getEmail())
+                .build();
+        List<Long> deleteFileIds = Arrays.asList(attachFiles.get(0).getId(), attachFiles.get(1).getId());
+        List<CreateAttachReq> newFiles = Arrays.asList(
+                CreateAttachReq.builder()
+                        .originFilename("newFile")
+                        .attachExtension(".txt")
+                        .build()
+        );
+
+        Long updateBoardId = boardService.updateBoard(modifyBoardReq, deleteFileIds, newFiles);
+        em.clear();
+        em.close();
+        SearchBoardResp findBoard = boardService.readBoard(updateBoardId);
+
+        assertThat(findBoard.getBoardTitle()).isEqualTo(modifyBoardReq.getBoardTitle());
+        assertThat(findBoard.getBoardContent()).isEqualTo(modifyBoardReq.getBoardContent());
+        assertThat(findBoard.getAttachList().size()).isNotEqualTo(attachReqs.size());
+        assertThat(findBoard.getAttachList().size()).isEqualTo(2);
     }
 }
