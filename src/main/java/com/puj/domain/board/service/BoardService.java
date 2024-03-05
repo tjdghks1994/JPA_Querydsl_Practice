@@ -1,15 +1,17 @@
 package com.puj.domain.board.service;
 
 import com.puj.domain.attachfile.AttachFile;
+import com.puj.domain.attachfile.exception.NotFoundAttachFileException;
 import com.puj.domain.attachfile.repository.AttachFileRepository;
 import com.puj.domain.attachfile.repository.dto.SearchAttachResp;
 import com.puj.domain.board.Board;
 import com.puj.domain.board.exception.InvalidBoardException;
+import com.puj.domain.board.exception.NotSameBoardWriterException;
 import com.puj.domain.board.repository.BoardRepository;
-import com.puj.domain.board.service.dto.CreateAttachReq;
+import com.puj.domain.attachfile.repository.dto.CreateAttachReq;
 import com.puj.domain.board.service.dto.CreateBoardReq;
+import com.puj.domain.board.service.dto.ModifyBoardReq;
 import com.puj.domain.board.service.dto.SearchBoardResp;
-import com.puj.domain.comment.Comment;
 import com.puj.domain.comment.repository.CommentRepository;
 import com.puj.domain.comment.repository.dto.SearchCommentResp;
 import com.puj.domain.member.Member;
@@ -20,10 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -58,7 +57,7 @@ public class BoardService {
     }
 
     // 게시글 단건 조회
-    public SearchBoardResp searchBoard(Long boardId) {
+    public SearchBoardResp readBoard(Long boardId) {
         // 게시글 조회
         Board findBoard = boardRepository.findBoardByIdWithMember(boardId)
                 .orElseThrow(() -> new InvalidBoardException("존재하지 않는 게시글 입니다."));
@@ -81,7 +80,43 @@ public class BoardService {
     }
 
     // 게시글 수정
+    public Long updateBoard(ModifyBoardReq modifyBoardReq,
+                                       List<Long> deleteAttachIds,
+                                       List<CreateAttachReq> newAttachList) {
+        // 수정하려는 게시글 엔티티 조회
+        Board findBoard = boardRepository.findBoardByIdWithMember(modifyBoardReq.getBoardId())
+                .orElseThrow(() -> new InvalidBoardException("존재하지 않는 게시글 입니다."));
+        // 게시글을 수정하려는 사람이 게시글 작성자가 맞는지 체크
+        checkWriter(findBoard.getMember().getEmail(), modifyBoardReq.getMemberEmail());
+        // 게시글 수정 - 변경 감지 활용
+        findBoard.changeBoardInfo(modifyBoardReq.getBoardTitle(), modifyBoardReq.getBoardContent());
+        // 삭제할 첨부파일 목록이 존재한다면 삭제
+        if (deleteAttachIds != null) {
+            deleteAttachIds.stream().forEach((attachId) -> {
+                AttachFile attachFile = attachFileRepository.findAttachFileByIdAndBoardId(attachId, findBoard.getId())
+                        .orElseThrow(() -> new NotFoundAttachFileException("게시글에 존재하지 않는 첨부파일 입니다."));
+            });
+            // 첨부파일 삭제 처리 - deleteYN 값을 Y로 변경
+            attachFileRepository.bulkAttachFileDelete(findBoard.getId(), deleteAttachIds);
+        }
+        // 새로운 첨부파일 목록이 존재한다면 추가
+        if (newAttachList != null) {
+            newAttachList.stream().forEach((newAttach) -> {
+                AttachFile attachFile = CreateAttachReq.conversionAttachEntity(newAttach, findBoard);
+                attachFileRepository.save(attachFile);
+            });
+        }
+
+        return findBoard.getId();
+    }
 
     // 게시글 삭제
 
+
+    // 게시글을 수정하려는 사람이 게시글 작성자가 맞는지 체크
+    private void checkWriter(String boardWriter, String boardModifier) {
+        if (!boardWriter.equals(boardModifier)) {
+            throw new NotSameBoardWriterException("게시글 작성자가 아닙니다.");
+        }
+    }
 }
