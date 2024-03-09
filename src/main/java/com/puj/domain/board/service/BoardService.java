@@ -59,8 +59,7 @@ public class BoardService {
     // 게시글 단건 조회
     public SearchBoardResp readBoard(Long boardId) {
         // 게시글 조회
-        Board findBoard = boardRepository.findBoardByIdWithMember(boardId)
-                .orElseThrow(() -> new InvalidBoardException("존재하지 않는 게시글 입니다."));
+        Board findBoard = findBoardByIdWithMemberEntity(boardId);
 
         // 해당 게시글의 첨부파일 목록 조회
         List<SearchAttachResp> attachFileList = attachFileRepository.findAttachFileByBoardId(boardId)
@@ -80,12 +79,12 @@ public class BoardService {
     }
 
     // 게시글 수정
+
     public Long updateBoard(ModifyBoardReq modifyBoardReq,
                                        List<Long> deleteAttachIds,
                                        List<CreateAttachReq> newAttachList) {
         // 수정하려는 게시글 엔티티 조회
-        Board findBoard = boardRepository.findBoardByIdWithMember(modifyBoardReq.getBoardId())
-                .orElseThrow(() -> new InvalidBoardException("존재하지 않는 게시글 입니다."));
+        Board findBoard = findBoardByIdWithMemberEntity(modifyBoardReq.getBoardId());
         // 게시글을 수정하려는 사람이 게시글 작성자가 맞는지 체크
         checkWriter(findBoard.getMember().getEmail(), modifyBoardReq.getMemberEmail());
         // 게시글 수정 - 변경 감지 활용
@@ -111,11 +110,26 @@ public class BoardService {
     }
 
     // 게시글 삭제
+    public void removeBoard(DeleteBoardReq deleteBoardReq) {
+        // 삭제하려는 게시글 엔티티 조회
+        Board removeBoard = findBoardByIdWithMemberEntity(deleteBoardReq.getBoardId());
+        // 삭제하려는 사람이 게시글 작성자가 맞는지 확인
+        checkWriter(removeBoard.getMember().getEmail(), deleteBoardReq.getWriter());
+        // 게시글 삭제 (soft delete) - 변경 감지 활용
+        removeBoard.removeBoard();
+    }
+
+    // 게시글 조회
+    private Board findBoardByIdWithMemberEntity(Long boardId) {
+        Board findBoard = boardRepository.findBoardByIdWithMember(boardId)
+                .orElseThrow(() -> new InvalidBoardException("존재하지 않는 게시글 입니다."));
+        return findBoard;
+    }
 
 
-    // 게시글을 수정하려는 사람이 게시글 작성자가 맞는지 체크
-    private void checkWriter(String boardWriter, String boardModifier) {
-        if (!boardWriter.equals(boardModifier)) {
+    // 게시글 작성자가 맞는지 체크
+    private void checkWriter(String boardWriter, String requester) {
+        if (!boardWriter.equals(requester)) {
             throw new NotSameBoardWriterException("게시글 작성자가 아닙니다.");
         }
     }
