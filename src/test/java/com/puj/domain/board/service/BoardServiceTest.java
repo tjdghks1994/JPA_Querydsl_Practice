@@ -1,6 +1,7 @@
 package com.puj.domain.board.service;
 
 import com.puj.domain.attachfile.AttachFile;
+import com.puj.domain.board.Board;
 import com.puj.domain.board.BoardType;
 import com.puj.domain.board.exception.InvalidBoardException;
 import com.puj.domain.attachfile.repository.dto.CreateAttachReq;
@@ -172,5 +173,27 @@ class BoardServiceTest {
         assertThat(findBoard.getBoardContent()).isEqualTo(modifyBoardReq.getBoardContent());
         assertThat(findBoard.getAttachList().size()).isNotEqualTo(attachReqs.size());
         assertThat(findBoard.getAttachList().size()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("게시글 삭제 성공 테스트")
+    void removeBoard() {
+        em.persist(member1);
+        Long boardId = boardService.createBoard(boardReq1, null);
+        Board findBoard = em.createQuery("select b from Board b where b.id = :boardId", Board.class)
+                .setParameter("boardId", boardId)
+                .getSingleResult();
+
+        DeleteBoardReq deleteBoardReq = DeleteBoardReq.builder()
+                .boardId(boardId)
+                .writer(member1.getEmail())
+                .build();
+
+        boardService.removeBoard(deleteBoardReq);
+
+        assertThat(findBoard.getDeleteYN()).isEqualTo("Y");
+
+        em.close();
+        em.clear();
     }
 }
