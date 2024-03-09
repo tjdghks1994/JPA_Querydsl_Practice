@@ -78,4 +78,10 @@ public class Board extends BaseTimeEntity {
         this.boardTitle = boardTitle;
         this.boardContent = boardContent;
     }
+
+    // 게시글 삭제 (soft delete)
+    public void removeBoard() {
+        this.deleteYN = "Y";
+    }
+
 }
