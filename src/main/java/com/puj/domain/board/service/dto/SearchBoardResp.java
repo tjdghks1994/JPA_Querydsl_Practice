@@ -17,35 +17,26 @@ public class SearchBoardResp {
     private final int viewCnt;                          // 조회수
     private final LocalDateTime createdAt;              // 게시글 작성일자
     private final String writer;                        // 게시글 작성자 닉네임
-    private final List<SearchAttachResp> attachList;    // 첨부파일 목록
-    private final List<SearchCommentResp> commentList;  // 댓글 목록
 
     @Builder
     private SearchBoardResp(Long boardId, String boardTitle, String boardContent,
-                           int viewCnt, LocalDateTime createdAt, String writer,
-                           List<SearchAttachResp> attachList, List<SearchCommentResp> commentList) {
+                           int viewCnt, LocalDateTime createdAt, String writer) {
         this.boardId = boardId;
         this.boardTitle = boardTitle;
         this.boardContent = boardContent;
         this.viewCnt = viewCnt;
         this.createdAt = createdAt;
         this.writer = writer;
-        this.attachList = attachList;
-        this.commentList = commentList;
     }
 
     // Entity 와 연관관계가 있는 DTO 를 통해, 게시글 응답 DTO 변환
-    public static SearchBoardResp toDTO(Board boardEntity,
-                                        List<SearchAttachResp> attachList,
-                                        List<SearchCommentResp> commentList) {
+    public static SearchBoardResp toDTO(Board boardEntity) {
         return SearchBoardResp.builder()
                 .boardId(boardEntity.getId())
                 .boardTitle(boardEntity.getBoardTitle())
                 .boardContent(boardEntity.getBoardContent())
                 .viewCnt(boardEntity.getViewCnt())
                 .writer(boardEntity.getMember().getNickname())
-                .attachList(attachList)
-                .commentList(commentList)
                 .build();
     }
 }
