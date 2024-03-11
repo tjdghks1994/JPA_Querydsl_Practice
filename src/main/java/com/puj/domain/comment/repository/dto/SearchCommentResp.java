@@ -27,7 +27,15 @@ public class SearchCommentResp {
                 .commentId(commentEntity.getId())
                 .commentContent(commentEntity.getContent())
                 .createdAt(commentEntity.getCreatedAt())
-                .parentCommentId(commentEntity.getParentComment().getId())
+                .parentCommentId(getParentCommentId(commentEntity))
                 .build();
+    }
+
+    private static Long getParentCommentId(Comment comment) {
+        if (comment.getParentComment() != null) {
+            return comment.getParentComment().getId();
+        }
+
+        return null;
     }
 }
