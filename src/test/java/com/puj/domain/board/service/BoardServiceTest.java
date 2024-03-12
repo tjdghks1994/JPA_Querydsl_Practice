@@ -99,12 +99,12 @@ class BoardServiceTest {
         Long boardId = boardService.createBoard(boardReq1, Optional.ofNullable(member1));
 
         // when
-        SearchBoardResp findBoardInfo = boardService.readBoard(boardId);
+        Board findBoardInfo = boardService.readBoard(boardId);
 
         // then
-        assertThat(findBoardInfo.getBoardId()).isEqualTo(boardId);
+        assertThat(findBoardInfo.getId()).isEqualTo(boardId);
         assertThat(findBoardInfo.getBoardTitle()).isEqualTo(boardReq1.getBoardTitle());
-        assertThat(findBoardInfo.getWriter()).isEqualTo(member1.getNickname());
+        assertThat(findBoardInfo.getMember().getNickname()).isEqualTo(member1.getNickname());
     }
 
     @Test
@@ -128,7 +128,7 @@ class BoardServiceTest {
                 .build();
 
         Long updateBoardId = boardService.updateBoard(modifyBoardReq);
-        SearchBoardResp findBoard = boardService.readBoard(updateBoardId);
+        Board findBoard = boardService.readBoard(updateBoardId);
 
         assertThat(findBoard.getBoardTitle()).isEqualTo(modifyBoardReq.getBoardTitle());
         assertThat(findBoard.getBoardContent()).isEqualTo(modifyBoardReq.getBoardContent());

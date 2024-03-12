@@ -3,6 +3,7 @@ package com.puj.domain.comment;
 import com.puj.domain.board.Board;
 import com.puj.domain.board.BoardType;
 import com.puj.domain.comment.repository.dto.SearchCommentResp;
+import com.puj.domain.comment.service.CommentService;
 import com.puj.domain.member.Member;
 import com.puj.domain.member.MemberRole;
 import jakarta.persistence.EntityManager;
@@ -16,8 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @Transactional
@@ -64,8 +63,8 @@ class CommentServiceTest {
         em.persist(comment1);
         em.persist(comment2);
 
-        List<SearchCommentResp> searchCommentResps = service.searchCommentList(board.getId());
+        List<Comment> commentList = service.searchCommentList(board.getId());
 
-        Assertions.assertThat(searchCommentResps.size()).isEqualTo(2);
+        Assertions.assertThat(commentList.size()).isEqualTo(2);
     }
 }

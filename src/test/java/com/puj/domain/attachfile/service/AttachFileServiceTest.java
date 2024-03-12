@@ -64,7 +64,7 @@ class AttachFileServiceTest {
         List<CreateAttachReq> createAttachReqList = Arrays.asList(attachReq1, attachReq2);
 
         service.saveAttachFileList(createAttachReqList, board);
-        List<SearchAttachResp> searchAttachResps = service.searchAttachFileList(board.getId());
+        List<AttachFile> searchAttachResps = service.searchAttachFileList(board.getId());
 
         Assertions.assertThat(createAttachReqList.size()).isEqualTo(searchAttachResps.size());
     }
@@ -99,8 +99,8 @@ class AttachFileServiceTest {
         List<CreateAttachReq> createAttachReqList = Arrays.asList(attachReq1, attachReq2);
 
         service.saveAttachFileList(createAttachReqList, board);
-        List<SearchAttachResp> searchAttachResps = service.searchAttachFileList(board.getId());
-        List<Long> deleteAttachFileIds = searchAttachResps.stream().map(searchAttachResp -> searchAttachResp.getAttachId())
+        List<AttachFile> searchAttachResps = service.searchAttachFileList(board.getId());
+        List<Long> deleteAttachFileIds = searchAttachResps.stream().map(searchAttachResp -> searchAttachResp.getId())
                 .collect(Collectors.toList());
 
         service.removeAttachFileList(deleteAttachFileIds, board.getId());
