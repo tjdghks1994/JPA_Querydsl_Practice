@@ -36,13 +36,11 @@ public class BoardService {
     }
 
     // 게시글 단건 조회
-    public SearchBoardResp readBoard(Long boardId) {
+    public Board readBoard(Long boardId) {
         // 게시글 조회
         Board findBoard = findBoardByIdWithMemberEntity(boardId);
 
-        SearchBoardResp resp = SearchBoardResp.toDTO(findBoard);
-
-        return resp;
+        return findBoard;
     }
 
     // 게시글 수정
