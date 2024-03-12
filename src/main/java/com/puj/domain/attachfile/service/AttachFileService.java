@@ -29,11 +29,8 @@ public class AttachFileService {
     }
 
     // boardId와 연관된 첨부파일 목록 조회
-    public List<SearchAttachResp> searchAttachFileList(Long boardId) {
-        List<SearchAttachResp> attachFileList = repository.findAttachFileByBoardId(boardId)
-                .stream()
-                .map((attachFile) -> SearchAttachResp.toDTO(attachFile))
-                .collect(Collectors.toList());
+    public List<AttachFile> searchAttachFileList(Long boardId) {
+        List<AttachFile> attachFileList = repository.findAttachFileByBoardId(boardId);
 
         return attachFileList;
     }
