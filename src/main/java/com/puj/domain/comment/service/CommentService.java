@@ -1,5 +1,6 @@
-package com.puj.domain.comment;
+package com.puj.domain.comment.service;
 
+import com.puj.domain.comment.Comment;
 import com.puj.domain.comment.repository.CommentRepository;
 import com.puj.domain.comment.repository.dto.SearchCommentResp;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +17,8 @@ public class CommentService {
     private final CommentRepository repository;
 
     // boardId와 연관된 댓글 목록 조회
-    public List<SearchCommentResp> searchCommentList(Long boardId) {
-        List<SearchCommentResp> commentList = repository.findCommentByBoardId(boardId)
-                .stream()
-                .map((comment) -> SearchCommentResp.toDTO(comment))
-                .collect(Collectors.toList());
+    public List<Comment> searchCommentList(Long boardId) {
+        List<Comment> commentList = repository.findCommentByBoardId(boardId);
 
         return commentList;
     }
