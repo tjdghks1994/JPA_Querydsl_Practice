@@ -24,15 +24,13 @@ public class BoardService {
     private final BoardRepository boardRepository;
 
     // 게시글 생성
-    public Long createBoard(CreateBoardReq boardReq, Optional<Member> member) {
+    public Board createBoard(CreateBoardReq boardReq, Member member) {
         // 게시글 저장을 위한 Entity 생성
-        Board boardEntity = CreateBoardReq
-                .conversionBoardEntity(boardReq, member.orElseThrow(() ->
-                        new RequiredMemberException("게시글 작성을 위해서는 작성자는 필수입니다.")));
+        Board boardEntity = CreateBoardReq.conversionBoardEntity(boardReq, member);
         // 게시글 저장
         Board saveBoard = boardRepository.save(boardEntity);
 
-        return saveBoard.getId();
+        return saveBoard;
     }
 
     // 게시글 단건 조회
