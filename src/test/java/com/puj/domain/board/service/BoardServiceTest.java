@@ -17,6 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -78,31 +79,31 @@ class BoardServiceTest {
     @Test
     @DisplayName("게시글 저장 성공 테스트")
     void createTest() {
-        Long boardId = boardService.createBoard(boardReq1, Optional.ofNullable(member1));
-        Long boardId2 = boardService.createBoard(boardReq2, Optional.ofNullable(member2));
+        Board board1 = boardService.createBoard(boardReq1, member1);
+        Board board2 = boardService.createBoard(boardReq2, member2);
 
-        assertThat(boardId).isGreaterThan(0L);
-        assertThat(boardId2).isGreaterThan(0L);
+        assertThat(board1.getId()).isGreaterThan(0L);
+        assertThat(board2.getId()).isGreaterThan(0L);
     }
 
     @Test
     @DisplayName("게시글 저장 실패 테스트")
     void createFailTest() {
-        assertThatThrownBy(() -> boardService.createBoard(boardReq1, Optional.ofNullable(null)))
-                .isInstanceOf(RequiredMemberException.class);
+        assertThatThrownBy(() -> boardService.createBoard(boardReq1, null))
+                .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
     @DisplayName("게시글 조회 성공 테스트")
     void readBoardTest() {
         // given
-        Long boardId = boardService.createBoard(boardReq1, Optional.ofNullable(member1));
+        Board board = boardService.createBoard(boardReq1, member1);
 
         // when
-        Board findBoardInfo = boardService.readBoard(boardId);
+        Board findBoardInfo = boardService.readBoard(board.getId());
 
         // then
-        assertThat(findBoardInfo.getId()).isEqualTo(boardId);
+        assertThat(findBoardInfo.getId()).isEqualTo(board.getId());
         assertThat(findBoardInfo.getBoardTitle()).isEqualTo(boardReq1.getBoardTitle());
         assertThat(findBoardInfo.getMember().getNickname()).isEqualTo(member1.getNickname());
     }
@@ -119,9 +120,9 @@ class BoardServiceTest {
     @Test
     @DisplayName("게시글 수정 성공 테스트")
     void updateBoardTest() {
-        Long boardId = boardService.createBoard(boardReq1, Optional.ofNullable(member1));
+        Board board = boardService.createBoard(boardReq1, member1);
         ModifyBoardReq modifyBoardReq = ModifyBoardReq.builder()
-                .boardId(boardId)
+                .boardId(board.getId())
                 .boardTitle("수정!")
                 .boardContent("내용도 수정~~!")
                 .memberEmail(member1.getEmail())
@@ -137,13 +138,13 @@ class BoardServiceTest {
     @Test
     @DisplayName("게시글 삭제 성공 테스트")
     void removeBoard() {
-        Long boardId = boardService.createBoard(boardReq1, Optional.of(member1));
+        Board board = boardService.createBoard(boardReq1, member1);
         Board findBoard = em.createQuery("select b from Board b where b.id = :boardId", Board.class)
-                .setParameter("boardId", boardId)
+                .setParameter("boardId", board.getId())
                 .getSingleResult();
 
         DeleteBoardReq deleteBoardReq = DeleteBoardReq.builder()
-                .boardId(boardId)
+                .boardId(board.getId())
                 .writer(member1.getEmail())
                 .build();
 
