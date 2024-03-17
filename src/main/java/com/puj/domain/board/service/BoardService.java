@@ -5,16 +5,13 @@ import com.puj.domain.board.exception.InvalidBoardException;
 import com.puj.domain.board.exception.NotSameBoardWriterException;
 import com.puj.domain.board.repository.BoardRepository;
 import com.puj.domain.board.service.dto.CreateBoardReq;
+import com.puj.domain.board.service.dto.DeleteBoardReq;
 import com.puj.domain.board.service.dto.ModifyBoardReq;
-import com.puj.domain.board.service.dto.SearchBoardResp;
 import com.puj.domain.member.Member;
-import com.puj.domain.member.exception.RequiredMemberException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -42,7 +39,7 @@ public class BoardService {
     }
 
     // 게시글 수정
-    public Long updateBoard(ModifyBoardReq modifyBoardReq) {
+    public Board updateBoard(ModifyBoardReq modifyBoardReq) {
         // 수정하려는 게시글 엔티티 조회
         Board findBoard = findBoardByIdWithMemberEntity(modifyBoardReq.getBoardId());
         // 게시글을 수정하려는 사람이 게시글 작성자가 맞는지 체크
@@ -50,7 +47,7 @@ public class BoardService {
         // 게시글 수정 - 변경 감지 활용
         findBoard.changeBoardInfo(modifyBoardReq.getBoardTitle(), modifyBoardReq.getBoardContent());
 
-        return findBoard.getId();
+        return findBoard;
     }
 
     // 게시글 삭제
