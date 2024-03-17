@@ -8,6 +8,8 @@ import com.puj.domain.board.Board;
 import com.puj.domain.board.facade.dto.BoardInfo;
 import com.puj.domain.board.service.BoardService;
 import com.puj.domain.board.service.dto.CreateBoardReq;
+import com.puj.domain.board.service.dto.DeleteBoardReq;
+import com.puj.domain.board.service.dto.ModifyBoardReq;
 import com.puj.domain.board.service.dto.SearchBoardResp;
 import com.puj.domain.comment.service.CommentService;
 import com.puj.domain.member.Member;
@@ -58,5 +60,18 @@ public class BoardFacade {
                 .searchBoardResp(searchBoardResp)
                 .searchAttachRespList(searchAttachRespList)
                 .build();
+    }
+
+    // 게시글 수정
+    public void modify(ModifyBoardReq modifyBoardReq, List<Long> deleteAttachIds, List<CreateAttachReq> newAttachList) {
+        Board board = boardService.updateBoard(modifyBoardReq);
+        attachFileService.removeAttachFileList(deleteAttachIds, board.getId());
+        attachFileService.saveAttachFileList(newAttachList, board);
+    }
+
+    // 게시글 삭제
+    public void delete(DeleteBoardReq deleteBoardReq) {
+        boardService.removeBoard(deleteBoardReq);
+        attachFileService.removeAllAttachFiles(deleteBoardReq.getBoardId());
     }
 }
