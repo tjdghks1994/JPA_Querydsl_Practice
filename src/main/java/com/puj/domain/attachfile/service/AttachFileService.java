@@ -35,13 +35,18 @@ public class AttachFileService {
         return attachFileList;
     }
 
-    // boardId와 첨부파일 목록 삭제 (soft delete)
+    // 일부 첨부파일 목록 삭제 (soft delete)
     public void removeAttachFileList(List<Long> deleteAttachIds, Long boardId) {
         deleteAttachIds.stream().forEach((attachId) -> {
-            AttachFile attachFile = repository.findAttachFileByIdAndBoardId(attachId, boardId)
+            repository.findAttachFileByIdAndBoardId(attachId, boardId)
                     .orElseThrow(() -> new NotFoundAttachFileException("게시글에 존재하지 않는 첨부파일 입니다."));
         });
         // 첨부파일 삭제 처리 - deleteYN 값을 Y로 변경
         repository.bulkAttachFileDelete(boardId, deleteAttachIds);
+    }
+
+    // 모든 첨부파일 목록 삭제 (soft delete)
+    public void removeAllAttachFiles(Long boardId) {
+        repository.bulkAttachFileAllDelete(boardId);
     }
 }
