@@ -21,4 +21,8 @@ public interface AttachFileRepository extends JpaRepository<AttachFile, Long> {
     @Modifying
     @Query("update AttachFile a set a.deleteYN = 'Y' where a.board.id = :boardId and a.id in :attachIds")
     int bulkAttachFileDelete(@Param("boardId") Long boardId, @Param("attachIds") List<Long> attachIds);
+
+    @Modifying(clearAutomatically = true)   // 영속성 컨텍스트 초기화
+    @Query("update AttachFile a set a.deleteYN = 'Y' where a.board.id = :boardId")
+    int bulkAttachFileAllDelete(@Param("boardId") Long boardId);
 }
