@@ -1,4 +1,4 @@
-package com.puj.domain.board.service;
+package com.puj.domain.board.service.dto;
 
 import lombok.Builder;
 import lombok.Getter;
