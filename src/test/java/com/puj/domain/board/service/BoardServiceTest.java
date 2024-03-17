@@ -4,12 +4,11 @@ import com.puj.domain.board.Board;
 import com.puj.domain.board.BoardType;
 import com.puj.domain.board.exception.InvalidBoardException;
 import com.puj.domain.board.service.dto.CreateBoardReq;
+import com.puj.domain.board.service.dto.DeleteBoardReq;
 import com.puj.domain.board.service.dto.ModifyBoardReq;
-import com.puj.domain.board.service.dto.SearchBoardResp;
 import com.puj.domain.member.Member;
 import com.puj.domain.member.MemberRole;
 import com.puj.domain.member.MemberStatus;
-import com.puj.domain.member.exception.RequiredMemberException;
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +19,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
@@ -128,8 +126,8 @@ class BoardServiceTest {
                 .memberEmail(member1.getEmail())
                 .build();
 
-        Long updateBoardId = boardService.updateBoard(modifyBoardReq);
-        Board findBoard = boardService.readBoard(updateBoardId);
+        Board updateBoard = boardService.updateBoard(modifyBoardReq);
+        Board findBoard = boardService.readBoard(updateBoard.getId());
 
         assertThat(findBoard.getBoardTitle()).isEqualTo(modifyBoardReq.getBoardTitle());
         assertThat(findBoard.getBoardContent()).isEqualTo(modifyBoardReq.getBoardContent());
