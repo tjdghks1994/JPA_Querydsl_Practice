@@ -149,4 +149,44 @@ class AttachFileServiceTest {
                 .isInstanceOf(NotFoundAttachFileException.class);
 
     }
+
+    @Test
+    @DisplayName("모든 첨부파일 목록 삭제 성공 테스트 - soft delete")
+    void removeAllAttachFilesTest() {
+        Member member = Member.builder()
+                .email("hello@gmail.com")
+                .pwd(UUID.randomUUID().toString())
+                .role(MemberRole.NORMAL)
+                .nickname("hardy")
+                .oAuthKey(null)
+                .build();
+        Board board = Board.builder()
+                .boardTitle("test")
+                .boardContent("hello world!")
+                .boardType(BoardType.NORMAL)
+                .parentBoard(null)
+                .member(member)
+                .build();
+        em.persist(member);
+        em.persist(board);
+        CreateAttachReq attachReq1 = CreateAttachReq.builder()
+                .originFilename("test")
+                .attachExtension(".txt")
+                .build();
+        CreateAttachReq attachReq2 = CreateAttachReq.builder()
+                .originFilename("test2")
+                .attachExtension(".txt")
+                .build();
+        List<CreateAttachReq> createAttachReqList = Arrays.asList(attachReq1, attachReq2);
+        service.saveAttachFileList(createAttachReqList, board);
+
+        service.removeAllAttachFiles(board.getId());
+
+        List<AttachFile> attachFiles = em.createQuery("select a from AttachFile a join a.board b where b.id = :boardId", AttachFile.class)
+                .setParameter("boardId", board.getId())
+                .getResultList();
+
+        Assertions.assertThat(attachFiles.get(0).getDeleteYN()).isEqualTo("Y");
+        Assertions.assertThat(attachFiles.get(1).getDeleteYN()).isEqualTo("Y");
+    }
 }
