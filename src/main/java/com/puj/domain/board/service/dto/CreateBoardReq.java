@@ -5,8 +5,10 @@ import com.puj.domain.board.BoardType;
 import com.puj.domain.member.Member;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class CreateBoardReq {
     private final String writer;        // 작성자 이메일아이디
     private final String boardTitle;    // 게시글제목

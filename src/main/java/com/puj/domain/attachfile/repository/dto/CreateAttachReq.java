@@ -4,11 +4,13 @@ import com.puj.domain.attachfile.AttachFile;
 import com.puj.domain.board.Board;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.Arrays;
 import java.util.UUID;
 
 @Getter
+@ToString
 public class CreateAttachReq {
     private String originFilename;  // 실제 파일 명
     private String attachExtension; // 파일 확장자
